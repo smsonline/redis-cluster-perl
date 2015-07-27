@@ -33,7 +33,7 @@ use constant {
   REDIS_RESPONSE_QUEUED  => 'QUEUED',
 };
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our $AUTOLOAD;
 
 my (@SLOTS, %NODES, $RTIME);
