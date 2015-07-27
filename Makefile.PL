@@ -11,7 +11,7 @@ WriteMakefile(
   CONFIGURE_REQUIRES => {
     'ExtUtils::MakeMaker' => '6.63_03',
   },
-  DISTNAME           => 'redis-cluster-perl',
+  DISTNAME           => 'Redis-Cluster',
   LICENSE            => 'artistic_2',
   MIN_PERL_VERSION   => '5.008',
   NAME               => 'Redis::Cluster',
