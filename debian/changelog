@@ -1,3 +1,11 @@
+libredis-cluster-perl (0.1) experimental; urgency=low
+
+  * Support of multiple Redis Clusters (cluster state is not static anymore)
+  * Automatic cluster state refresh is now optional (instead of default
+    refresh interval)
+
+ --  <dev.opensource@sms-online.com>  Mon, 27 Jul 2015 22:31:23 +0300
+
 libredis-cluster-perl (0.02) experimental; urgency=low
 
   * Initial version

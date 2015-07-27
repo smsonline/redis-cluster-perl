@@ -205,9 +205,9 @@ ok(ref($res) eq 'Redis', 'get node by key');
   die('[watch] error') unless $res && $res eq 'OK';
 
   dies_ok(sub { $redis->get($key); }, 'redirect inside watch');
-
-  $redis->del($key);
-  die('[del] error') unless $res && $res eq 'OK';
 }
+
+$redis->del($key);
+die('[del] error') unless $res && $res eq 'OK';
 
 done_testing();

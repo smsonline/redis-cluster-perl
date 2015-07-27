@@ -19,24 +19,25 @@ use Try::Tiny;
 use constant {
   # Default maximum number of slot redirects.
   DEFAULT_MAX_REDIRECTS  => 5,
-  # Default cluster state refresh interval (in seconds)
-  DEFAULT_REFRESH        => 60 + int(rand(60)),
+  # Default cluster state refresh interval (in seconds).
+  # If set to zero, cluster state will be updated only on MOVED redirect.
+  DEFAULT_REFRESH        => 0,
   # Default maximum internal queue size (used in 'multi' mode)
   DEFAULT_MAX_QUEUE_SIZE => 10,
   # Minimum number of nodes
   MIN_NODES              => 3,
-  # Total slots in cluster. Used for execution
-  # keyless commands on random nodes.
+  # Total slots in cluster. Used for execution commands
+  # without keys in arguments on random nodes.
   TOTAL_SLOTS            => 0x4000,
   # Redis responses
   REDIS_RESPONSE_OK      => 'OK',
   REDIS_RESPONSE_QUEUED  => 'QUEUED',
 };
 
-our $VERSION = '0.02';
+our $VERSION = '0.1';
 our $AUTOLOAD;
 
-my (@SLOTS, %NODES, $RTIME);
+my %NODES;
 
 # Supported commands.
 # - 'key' may be a Scalar (index of first key in command
@@ -248,7 +249,12 @@ my %SPEC = (
       default   => DEFAULT_MAX_QUEUE_SIZE,
     },
     allow_slave    => { type => BOOLEAN, default => 0 },
-    default_slot   => { type => SCALAR, optional => 1 },
+    default_slot   => {
+      type      => SCALAR,
+      callbacks => { 'total_slots' => sub { int($_[0] || 0) <= TOTAL_SLOTS } },
+      regex     => qr/^\d+$/,
+      optional  => 1,
+    },
     debug          => {
       type    => BOOLEAN,
       default => $ENV{REDIS_CLUSTER_DEBUG} || 0,
@@ -266,18 +272,20 @@ sub new {
       spec        => $SPEC{new},
       allow_extra => 1,
    ),
+    _slots     => [],
     _redirects => 0,
   };
 
+  # Parse nodes from string
   unless (ref($self->{server})) {
     $self->{server} = [ split(m/[\s,;]+/, $self->{server}) ];
   }
 
+  # Check minimum number of nodes
   if (@{$self->{server}} < MIN_NODES) {
     croak('At least ' . MIN_NODES . ' nodes should be specified');
   }
 
-  $RTIME ||= 0;
   return bless($self, $class);
 }
 
@@ -410,7 +418,7 @@ sub _exec_cmd {
       @{$self->{_queue}} == 1 && $self->{_queue}->[0]->[0] eq 'multi';
 
     if ($enqueue) {
-      # Enqueue keyless command key in 'multi' mode except 'exec' and 'discard'
+      # Enqueue command without key in 'multi' mode except 'exec' and 'discard'
       $self->_enqueue($cmd, @args);
       $self->_set_mode_by_cmd($cmd) if $cmd eq 'multi';
 
@@ -502,7 +510,7 @@ sub _on_error {
   my $redirect = any { $type eq $_ } qw(MOVED ASK);
   croak($err_msg) unless $redirect;
 
-  warn("[warn] $err_msg") unless $self->{_test};
+  warn("[warn] $err_msg") if $self->{debug} || !$self->{_test};
 
   # Redirect inside 'multi' is not allowed
   if (exists($self->{_multi})) {
@@ -611,36 +619,27 @@ sub _get_slots {
   my ($force) = @_;
 
   # No need to refresh cluster state
-  return \@SLOTS if !$force && time() - $RTIME < $self->{refresh};
+  return $self->{_slots} if @{$self->{_slots}} && !$force &&
+    (!$self->{refresh} || time() - $self->{_utime} < $self->{refresh});
 
-  # Try to get cluster state from any connected node
+  # Get cluster slots
   my $slots;
 
-  foreach my $redis (values(%NODES)) {
+  foreach my $node (@{$self->{server}}) {
+    my $redis = $self->_get_node($node);
     $slots = $redis->cluster_slots();
+
     last if $slots && @$slots;
-  }
-
-  # Try to connect to any known node and get cluster state
-  unless ($slots && @$slots) {
-    foreach my $node (@{$self->{server}}) {
-      next if exists($NODES{$node});
-
-      my $redis = $self->_get_node($node);
-      $slots = $redis->cluster_slots();
-
-      last if $slots && @$slots;
-    }
   }
 
   croak('Cannot get cluster state') unless $slots && @$slots;
 
   # Sort slots for binary search
-  @SLOTS = sort { $a->[0] <=> $b->[0] } @$slots;
+  $self->{_slots} = [ sort { $a->[0] <=> $b->[0] } @$slots ];
   # Update refresh time
-  $RTIME = time();
+  $self->{_utime} = time();
 
-  return \@SLOTS;
+  return $self->{_slots};
 }
 
 ####
@@ -688,7 +687,7 @@ __END__
       127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002
       127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
     )],
-    refresh        => 60 + int(rand(60)),
+    refresh        => 0,
     max_redirects  => 5,
     max_queue_size => 10,
     allow_slave    => 0,
@@ -737,7 +736,7 @@ Execution of read-only commands on slave nodes (opional)
       127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
     )],
     # Default values below
-    refresh        => 60 + int(rand(60)),
+    refresh        => 0,
     max_redirects  => 5,
     max_queue_size => 10,
     allow_slave    => 0,
@@ -757,7 +756,8 @@ state, other nodes will be found automatically.
 
 =head3 refresh
 
-Cluster state refresh interval (in seconds)
+Cluster state refresh interval (in seconds).
+If set to zero, cluster state will be updated only on MOVED redirect.
 
 =head3 max_redirects
 

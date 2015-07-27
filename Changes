@@ -1,5 +1,10 @@
 Revision history for Perl extension Redis::Cluster.
 
+0.1  Mon Jul 27 22:29:05 2015
+  - Support of multiple Redis Clusters (cluster state is not static anymore)
+  - Automatic cluster state refresh is now optional (instead of default
+    refresh interval)
+
 0.02  Thu Jul 24 19:06:55 2015
 	- Initial version
 
