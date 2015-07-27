@@ -722,7 +722,7 @@ Key slot redirects
 
 =item *
 
-Execution of read-only commands on slave nodes (opional)
+Execution of read-only commands on slave nodes (optional)
 
 =back
 
