@@ -37,6 +37,6 @@ WriteMakefile(
     'Test::Pod::Coverage' => '1.08',
     'Test::Strict'        => 0,
   },
-  VERSION            => '0.1',
+  VERSION            => '0.11',
   test               => { TESTS => 't/*.t' },
 );

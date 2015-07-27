@@ -1,3 +1,9 @@
+libredis-cluster-perl (0.11) testing; urgency=low
+
+  * Add MANIFEST
+
+ --  <dev.opensource@sms-online.com>  Mon, 27 Jul 2015 23:29:13 +0300
+
 libredis-cluster-perl (0.1) experimental; urgency=low
 
   * Support of multiple Redis Clusters (cluster state is not static anymore)
