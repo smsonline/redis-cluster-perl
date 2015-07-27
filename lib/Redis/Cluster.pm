@@ -700,8 +700,8 @@ __END__
 
 =head1 DESCRIPTION
 
-  Redis Cluster is HA solution for Redis. This module provides the same API
-  as Redis.pm and deals with:
+Redis Cluster is HA solution for Redis. This module provides the same API
+as Redis.pm and deals with:
 
 =over
 
@@ -750,63 +750,63 @@ Returns Redis::Cluster object.
 
 =head3 server
 
-  Cluster nodes (mandatory). Should be an ArrayRef or comma separated string.
-  Every node should be described as ip:port. You should specify at least
-  three (prefferably master) nodes. This nodes will be used to get cluster
-  state, other nodes will be found automatically.
+Cluster nodes (mandatory). Should be an ArrayRef or comma separated string.
+Every node should be described as ip:port. You should specify at least
+three (prefferably master) nodes. This nodes will be used to get cluster
+state, other nodes will be found automatically.
 
 =head3 refresh
 
-  Cluster state refresh interval (in seconds)
+Cluster state refresh interval (in seconds)
 
 =head3 max_redirects
 
-  Maximum number of key slot redirects (to avoid infinite redirects)
+Maximum number of key slot redirects (to avoid infinite redirects)
 
 =head3 max_queue_size
 
-  Maximum internal queue size (used in 'multi' mode)
+Maximum internal queue size (used in 'multi' mode)
 
 =head3 allow_slave
 
-  Allow execution of read-only commands on slave nodes
+Allow execution of read-only commands on slave nodes
 
 =head3 default_slot
 
-  This key slot is used for execution of commands without keys in arguments.
-  If not specified, random key slot will be used, and command will be executed
-  on a random master node.
+This key slot is used for execution of commands without keys in arguments.
+If not specified, random key slot will be used, and command will be executed
+on a random master node.
 
 =head2 get_master_by_key
 
   my $redis = $cluster->get_master_by_key($key);
 
-  Get master node by key. Returns Redis object.
+Get master node by key. Returns Redis object.
 
 =head2 get_slave_by_key
 
   $redis = $cluster->get_slave_by_key($key, $num);
 
-  Get slave node by key. Returns Redis object.
+Get slave node by key. Returns Redis object.
 
-  $num is a slave number (1 - first slave, ...).
-  If not specified, random slave node will be returned.
+$num is a slave number (1 - first slave, ...).
+If not specified, random slave node will be returned.
 
 =head2 get_node_by_key
 
   $redis = $cluster->get_node_by_key($key, $num);
 
-  Get any node (master or slave) by key. Returns Redis object.
+Get any node (master or slave) by key. Returns Redis object.
 
-  $num is a node number (1 - master, 2 - first slave, ...).
-  If not specified, random node will be returned.
+$num is a node number (1 - master, 2 - first slave, ...).
+If not specified, random node will be returned.
 
 =head2 get_node
 
   $redis = $cluster->get_node($node)
 
-  Get node by ip:port. Returns Redis object.
-  Node should be a member of cluster.
+Get node by ip:port. Returns Redis object.
+Node should be a member of cluster.
 
 =head1 PRIVATE METHODS
 
@@ -814,87 +814,87 @@ Returns Redis::Cluster object.
 
   my $res = $cluster->_exec_cmd($cmd, @args);
 
-  Execute Redis command. Returns command execution result.
+Execute Redis command. Returns command execution result.
 
 =head2 _enqueue
 
   $cluster->_enqueue($cmd, @args);
 
-  Enqueue command into internal queue (used in 'multi' mode).
+Enqueue command into internal queue (used in 'multi' mode).
 
 =head2 _set_mode_by_cmd
 
   $cluster->_set_mode_by_cmd($cmd)
 
-  Set mode by command (multi, exec, discard, watch, unwatch).
+Set mode by command (multi, exec, discard, watch, unwatch).
 
 =head2 _on_error
 
   my $res = $cluster->_on_error($redis, $cmd, \@args, $err_msg);
 
-  Error handler. Retries command on another node on redirect.
-  Returns command execution result.
+Error handler. Retries command on another node on redirect.
+Returns command execution result.
 
 =head2 _get_slot_by_key
 
   my $slot = $cluster->_get_slot_by_key($key);
 
-  Get slot by key. Returns slot number.
+Get slot by key. Returns slot number.
 
 =head2 _get_master_by_slot
 
   $redis = $cluster->_get_master_by_slot($slot);
 
-  Get master node by slot number. Returns Redis object.
+Get master node by slot number. Returns Redis object.
 
 =head2 _get_slave_by_slot
 
   $redis = $cluster->_get_slave_by_slot($slot, $num);
 
-  Get slave node by slot number. Returns Redis object.
+Get slave node by slot number. Returns Redis object.
 
-  $num is a slave number (1 - first slave, ...).
-  If not specified, random slave node will be returned.
+$num is a slave number (1 - first slave, ...).
+If not specified, random slave node will be returned.
 
 =head2 _get_node_by_slot
 
   $redis = $cluster->_get_node_by_slot($slot, $num, $offset);
 
-  Get any node (master or slave) by slot number. Return Redis object.
+Get any node (master or slave) by slot number. Return Redis object.
 
-  $num is a node number (1 - master, 2 - first slave, ...).
-  If not specified, random node will be returned.
+$num is a node number (1 - master, 2 - first slave, ...).
+If not specified, random node will be returned.
 
-  $offset is a node offset (0 - any node, 1 - any slave, ...).
+$offset is a node offset (0 - any node, 1 - any slave, ...).
 
 =head2 _get_range_by_slot
 
   my $range = $cluster->_get_range_by_slot($slot);
 
-  Get slot range by slot number.
-  Returns an item of 'cluster slots' command excution result (ArrayRef).
+Get slot range by slot number.
+Returns an item of 'cluster slots' command excution result (ArrayRef).
 
 =head2 _get_slots
 
   my $slots = $cluster->_get_slots($force);
 
-  Get slots (cluster state).
-  Returns 'cluster slots' command execution result (ArrayRef).
+Get slots (cluster state).
+Returns 'cluster slots' command execution result (ArrayRef).
 
-  If $force flag is set, cluster state will be obtained immediately,
-  ignoring 'refresh' property.
+If $force flag is set, cluster state will be obtained immediately,
+ignoring 'refresh' property.
 
 =head2 _get_node
 
   $redis = $cluster->_get_node($node);
 
-  Get node by ip:port. Returns Redis object.
+Get node by ip:port. Returns Redis object.
 
 =head2 _is_member
 
   my $is_member = $cluster->_is_member($node)
 
-  Check if node is a member of cluster by ip:port. Returns boolean.
+Check if node is a member of cluster by ip:port. Returns boolean.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -955,9 +955,9 @@ SMS Online <dev.opensource@sms-online.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2015 SMS Online
+Copyright (C) 2015 SMS Online
 
-  This is free software, licensed under:
+This is free software, licensed under:
   The Artistic License 2.0 (GPL Compatible)
 
 =cut
