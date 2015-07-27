@@ -1,1 +1,1 @@
-# redis-cluster-perl
+Redis Cluster client for Perl
