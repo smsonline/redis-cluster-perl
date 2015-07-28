@@ -1,3 +1,9 @@
+libredis-cluster-perl (0.12) experimental; urgency=low
+
+  * Some tests should be optional
+
+ --  <dev.opensource@sms-online.com>  Tue, 28 Jul 2015 12:33:59 +0300
+
 libredis-cluster-perl (0.11) testing; urgency=low
 
   * Add MANIFEST

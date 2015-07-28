@@ -1,5 +1,8 @@
 Revision history for Perl extension Redis::Cluster.
 
+0.12  Mon Jul 28 12:36:47 2015
+  - Some tests should be optional
+
 0.11  Mon Jul 27 23:31:44 2015
   - Add MANIFEST
 

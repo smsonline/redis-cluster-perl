@@ -34,7 +34,7 @@ use constant {
   REDIS_RESPONSE_QUEUED  => 'QUEUED',
 };
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 our $AUTOLOAD;
 
 my %NODES;
