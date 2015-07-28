@@ -803,7 +803,7 @@ If not specified, random node will be returned.
 
 =head2 get_node
 
-  $redis = $cluster->get_node($node)
+  $redis = $cluster->get_node($node);
 
 Get node by ip:port. Returns Redis object.
 Node should be a member of cluster.
@@ -824,7 +824,7 @@ Enqueue command into internal queue (used in 'multi' mode).
 
 =head2 _set_mode_by_cmd
 
-  $cluster->_set_mode_by_cmd($cmd)
+  $cluster->_set_mode_by_cmd($cmd);
 
 Set mode by command (multi, exec, discard, watch, unwatch).
 
@@ -892,7 +892,7 @@ Get node by ip:port. Returns Redis object.
 
 =head2 _is_member
 
-  my $is_member = $cluster->_is_member($node)
+  my $is_member = $cluster->_is_member($node);
 
 Check if node is a member of cluster by ip:port. Returns boolean.
 
