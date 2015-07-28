@@ -17,9 +17,7 @@ plan(skip_all => 'Redis Cluster must have ' .
 my $redis = Redis::Cluster->new(server => \@nodes);
 
 # key slot
-my $key = $redis->randomkey();
-die('[randomkey] error') unless defined($key);
-
+my $key = 'test_key_' . int(rand(0x4000));
 my $slot = $redis->cluster_keyslot($key);
 die('[cluster keyslot] error') unless defined($slot);
 
@@ -84,7 +82,7 @@ $res = $redis->get($key);
 ok($res eq 3, 'discard');
 
 # wait
-$res = $redis->wait(1, 10);
+$res = $redis->wait(1, 1000);
 ok($res == 1, 'wait');
 
 # del
@@ -170,7 +168,7 @@ ok(ref($res) eq 'Redis', 'get node by key');
     my $range = $redis->_get_range_by_slot($slot); ## no critic
     last if $range->[0];
 
-    $key = $redis->randomkey();
+    $key = 'test_key_' . int(rand(0x4000));
     die('[randomkey] error') unless defined($key);
   }
 
