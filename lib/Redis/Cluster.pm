@@ -34,7 +34,7 @@ use constant {
   REDIS_RESPONSE_QUEUED  => 'QUEUED',
 };
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 our $AUTOLOAD;
 
 my %NODES;
@@ -535,9 +535,8 @@ sub _on_error {
     croak('Redirect inside [multi] is not allowed');
   }
 
-  # Redirect inside 'watch' is not allowed,
-  # but 'watch' itself can be redirected
-  if (exists($self->{_watch}) && $cmd ne 'watch') {
+  # Redirect inside 'watch' is not allowed
+  if (exists($self->{_watch})) {
     $self->_set_mode_by_cmd('unwatch');
     $redis->__std_cmd('unwatch'); ## no critic
     croak('Redirect inside [watch] is not allowed');

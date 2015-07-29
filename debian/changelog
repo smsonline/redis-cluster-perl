@@ -1,3 +1,9 @@
+libredis-cluster-perl (0.14) experimental; urgency=low
+
+  * Fix redirect inside 'watch'
+
+ --  <dev.opensource@sms-online.com>  Wed, 29 Jul 2015 15:17:43 +0300
+
 libredis-cluster-perl (0.13) experimental; urgency=low
 
   * New get_random_master() and get_random_slave() methods
