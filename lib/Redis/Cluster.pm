@@ -34,7 +34,7 @@ use constant {
   REDIS_RESPONSE_QUEUED  => 'QUEUED',
 };
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 our $AUTOLOAD;
 
 my %NODES;
@@ -329,6 +329,18 @@ sub get_node {
 }
 
 ####
+sub get_random_master {
+  my $self = shift(@_);
+  return $self->_get_master_by_slot(int(rand(TOTAL_SLOTS)));
+}
+
+####
+sub get_random_slave {
+  my $self = shift(@_);
+  return $self->_get_slave_by_slot(int(rand(TOTAL_SLOTS)));
+}
+
+####
 sub AUTOLOAD {
   my $cmd = $AUTOLOAD;
   $cmd =~ s/.*://;
@@ -433,12 +445,16 @@ sub _exec_cmd {
       return $cmd eq 'exec' ? [] : REDIS_RESPONSE_OK;
     }
     else {
-      # Get master node by key slot (using default_slot property or random slot)
-      my $slot = defined($self->{default_slot}) ?
-        $self->{default_slot} : int(rand(TOTAL_SLOTS));
-
-      $redis = $self->_get_master_by_slot($slot);
-      $node_type = 'random master';
+      if (defined($self->{default_slot})) {
+        # Get default master node
+        $redis = $self->_get_master_by_slot($self->{default_slot});
+        $node_type = 'default master';
+      }
+      else {
+        # Get random master node
+        $redis = $self->get_random_master();
+        $node_type = 'random master';
+      }
     }
   }
 
@@ -691,7 +707,6 @@ __END__
     max_redirects  => 5,
     max_queue_size => 10,
     allow_slave    => 0,
-    default_slot   => undef,
     ... # See Redis.pm for other arguments
   );
 
@@ -699,8 +714,7 @@ __END__
 
 =head1 DESCRIPTION
 
-Redis Cluster is HA solution for Redis. This module provides the same API
-as Redis.pm and deals with:
+Redis Cluster is HA solution for Redis. This module deals with:
 
 =over
 
@@ -726,6 +740,27 @@ Execution of read-only commands on slave nodes (optional)
 
 =back
 
+Transactions (not recommended), Lua scripts (recommended) and 'wait' command
+are supported with some limitations described in BUGS AND LIMITATIONS.
+
+=head1 MIGRATION
+
+This module provides the same API as Redis.pm. So, migration should be quite
+simple. There are two main differences:
+
+=over
+
+=item *
+
+'server' property should contain at least three nodes. It may be an ArrayRef
+or comma separated string.
+
+=item *
+
+You should use hash tags in your keys to avoid issues.
+
+=back
+
 =head1 PUBLIC METHODS
 
 =head2 new
@@ -740,7 +775,6 @@ Execution of read-only commands on slave nodes (optional)
     max_redirects  => 5,
     max_queue_size => 10,
     allow_slave    => 0,
-    default_slot   => undef,
     ...
   );
 
@@ -753,6 +787,8 @@ Cluster nodes (mandatory). Should be an ArrayRef or comma separated string.
 Every node should be described as ip:port. You should specify at least
 three (prefferably master) nodes. This nodes will be used to get cluster
 state, other nodes will be found automatically.
+
+You can also specify nodes in REDIS_CLUSTER envitronment variable.
 
 =head3 refresh
 
@@ -776,6 +812,8 @@ Allow execution of read-only commands on slave nodes
 This key slot is used for execution of commands without keys in arguments.
 If not specified, random key slot will be used, and command will be executed
 on a random master node.
+
+=head3 Other arguments are identical to Redis.pm
 
 =head2 get_master_by_key
 
@@ -807,6 +845,18 @@ If not specified, random node will be returned.
 
 Get node by ip:port. Returns Redis object.
 Node should be a member of cluster.
+
+=head2 get_random_master
+
+  my $redis = $cluster->get_random_master();
+
+Get random master node.
+
+=head2 get_random_slave
+
+  my $redis = $cluster->get_random_slave();
+
+Get random slave node.
 
 =head1 PRIVATE METHODS
 
@@ -911,6 +961,10 @@ master node will be selected from 'watch' or 'multi' command till 'exec',
 
 All multi-key commands should be in a single key slot. It is a Redis
 Cluster limitation. You should use hash tags to avoid issues.
+
+=item *
+
+'Wait' command will be executed on node, selected by last known key.
 
 =item *
 

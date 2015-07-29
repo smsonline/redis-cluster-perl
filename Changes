@@ -1,6 +1,11 @@
 Revision history for Perl extension Redis::Cluster.
 
-0.12  Mon Jul 28 12:36:47 2015
+0.13  Wed Jul 29 12:46:33 2015
+  - New get_random_master() and get_random_slave() methods
+  - POD fixed / improved
+  - Tests added / fixed
+
+0.12  Tue Jul 28 12:36:47 2015
   - Some tests should be optional
 
 0.11  Mon Jul 27 23:31:44 2015

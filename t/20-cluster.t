@@ -160,6 +160,14 @@ ok(ref($res) eq 'Redis', 'get slave by key');
 $res = $redis->get_node_by_key($key);
 ok(ref($res) eq 'Redis', 'get node by key');
 
+# get random master
+$res = $redis->get_random_master();
+ok(ref($res) eq 'Redis', 'get random master');
+
+# get random slave
+$res = $redis->get_random_slave();
+ok(ref($res) eq 'Redis', 'get random slave');
+
 # redirects
 {
   # Get key (slot range should not include key slot #0)

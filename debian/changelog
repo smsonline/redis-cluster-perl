@@ -1,3 +1,11 @@
+libredis-cluster-perl (0.13) experimental; urgency=low
+
+  * New get_random_master() and get_random_slave() methods
+  * POD fixed / improved
+  * Tests added / fixed
+
+ --  <dev.opensource@sms-online.com>  Wed, 29 Jul 2015 12:46:16 +0300
+
 libredis-cluster-perl (0.12) experimental; urgency=low
 
   * Some tests should be optional
