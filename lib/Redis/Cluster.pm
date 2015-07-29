@@ -710,6 +710,9 @@ __END__
     ... # See Redis.pm for other arguments
   );
 
+  $cluster->set('key', 1);
+  my $res = $cluster->get('key');
+
   # See Redis.pm for API details
 
 =head1 DESCRIPTION
